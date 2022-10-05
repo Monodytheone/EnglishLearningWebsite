@@ -3,10 +3,12 @@ using FileService.Infrastructure;
 using FileService.Infrastructure.Services;
 using FluentValidation.AspNetCore;
 using MediatR;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.SqlServer.Storage.Internal;
 using System.Reflection;
+using Zack.ASPNETCore;
 using Zack.Commons;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -36,6 +38,10 @@ builder.Services.Configure<SMBStorageOptions>(builder.Configuration.GetSection("
 builder.Services.AddFluentValidation(fv =>
 {
     fv.RegisterValidatorsFromAssemblies(ReflectionHelper.GetAllReferencedAssemblies());
+});
+builder.Services.Configure<MvcOptions>(mvcOptions =>
+{
+    mvcOptions.Filters.Add<UnitOfWorkFilter>();
 });
 
 

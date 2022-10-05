@@ -42,7 +42,8 @@ namespace FileService.Infrastructure.Services
             using Stream outStream = File.OpenWrite(fullPath);
             await content.CopyToAsync(outStream, cancellationToken);
             HttpRequest req = _httpContextAccessor.HttpContext.Request;
-            string url = req.Scheme + "://" + req.Host + "/FileService/" + key;
+            //string url = req.Scheme + "://" + req.Host + "/FileService/" + key;
+            string url = $"{req.Scheme}://{req.Host}/{key}";
             return new Uri(url);
         }
     }
