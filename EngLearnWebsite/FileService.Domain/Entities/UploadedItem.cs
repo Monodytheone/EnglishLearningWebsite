@@ -4,7 +4,7 @@ using Zack.DomainCommons.Models;
 namespace FileService.Domain.Entities;
 
 /// <summary>
-/// 上传项
+/// 上传（后的）项
 /// </summary>
 public record UploadedItem : BaseEntity, IHasCreationTime
 {

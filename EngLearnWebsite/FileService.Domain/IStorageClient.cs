@@ -4,7 +4,7 @@ namespace FileService.Domain;
 /// <summary>
 /// 存储服务器接口
 /// </summary>
-public interface IStoragClient
+public interface IStorageClient
 {
     StorageType StorageType { get; }
 
