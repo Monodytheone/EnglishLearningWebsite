@@ -1,6 +1,7 @@
 ﻿using FileService.Domain;
 using FileService.Domain.Entities;
 using FileService.Infrastructure;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Zack.ASPNETCore;
@@ -10,6 +11,7 @@ namespace FileService.WebAPI.Controllers;
 [Route("api/[controller]/[action]")]
 [ApiController]
 [UnitOfWork(typeof(FSDbContext))]
+//[Authorize(Roles = "Admin")]
 public class UploaderController : ControllerBase
 {
     private readonly IFSRepository _fsRepository;
