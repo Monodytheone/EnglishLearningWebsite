@@ -1,4 +1,4 @@
-using FileService.Domain;
+锘縰sing FileService.Domain;
 using FileService.Infrastructure;
 using FileService.Infrastructure.Services;
 using FluentValidation.AspNetCore;
@@ -23,10 +23,11 @@ builder.Services.AddDbContext<FSDbContext>(optionsBuilder =>
 });
 builder.Host.ConfigureAppConfiguration((hostCtx, configBuilder) =>
 {
-    //不能使用ConfigureAppConfiguration中的configBuilder去读取配置，否则就循环调用了，因此这里直接自己去读取配置文件
+    //涓嶈兘浣跨敤ConfigureAppConfiguration涓殑configBuilder鍘昏鍙栭厤缃紝鍚﹀垯灏卞惊鐜皟鐢ㄤ簡锛屽洜姝よ繖閲岀洿鎺ヨ嚜宸卞幓璇诲彇閰嶇疆鏂囦欢
     //var configRoot = new ConfigurationBuilder().AddJsonFile("appsettings.json").Build();
     //string connStr = configRoot.GetValue<string>("DefaultDB:ConnStr");
-    string connStr = Environment.GetEnvironmentVariable("ConnetionStrings:EngLearnWebsite");
+    string connStr = Environment.GetEnvironmentVariable("ConnectionStrings:EngLearnWebsite");
+    //string connStr = "Server=.;Database=EngLearnWebsite;Trusted_Connection=True;MultipleActiveResultSets=true;Integrated Security=SSPI";
     configBuilder.AddDbConfiguration(() => new SqlConnection(connStr), reloadOnChange: true, reloadInterval: TimeSpan.FromSeconds(5));
 });
 builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
