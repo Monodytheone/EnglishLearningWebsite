@@ -24,7 +24,7 @@ namespace IdentityService.Domain.Entities
         /// </summary>
         public bool IsDeleted { get; private set; }
 
-        public User()
+        public User(string userName) : base(userName)
         {
             Id = Guid.NewGuid();
             CreationTime = DateTime.Now;

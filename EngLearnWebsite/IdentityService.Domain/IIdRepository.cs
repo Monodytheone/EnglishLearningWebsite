@@ -33,5 +33,21 @@ namespace IdentityService.Domain
         /// 获取User的Role
         /// </summary>
         Task<IList<string>> GetRoles(User user);
+
+        /// <summary>
+        /// 创建用户
+        /// </summary>
+        Task<IdentityResult> CreateUserAsync(User user, string password);
+
+        Task<string> GenerateChangePhoneNumberTokenAsync(User user, string phoneNumber);
+
+        Task<SignInResult> ChangePhoneNumAsync(User user, string phoneNumber, string token);
+
+        /// <summary>
+        /// 确认手机号
+        /// </summary>
+        Task ConfirmPhoneNumAsync(Guid id);
+
+        Task<IdentityResult> AddToRole(User user, string role);
     }
 }

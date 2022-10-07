@@ -1,4 +1,6 @@
-﻿using IdentityService.Domain.Entities;
+﻿using IdentityService.Domain;
+using IdentityService.Domain.Entities;
+using IdentityService.Infrastructure.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Zack.Commons;
@@ -9,6 +11,6 @@ internal class ModuleInitializer : IModuleInitializer
 {
     public void Initialize(IServiceCollection services)
     {
-     
+        services.AddScoped<ISmsSender, MockSmsSender>();
     }
 }
