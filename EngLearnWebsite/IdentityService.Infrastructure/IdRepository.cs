@@ -3,11 +3,6 @@ using IdentityService.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace IdentityService.Infrastructure;
 
@@ -24,9 +19,18 @@ public class IdRepository : IIdRepository
         _logger = logger;
     }
 
-    public Task<IdentityResult> AddToRole(User user, string role)
+    public async Task<IdentityResult> AddToRoleAsync(User user, string role)
     {
-        
+        if (await _roleManager.RoleExistsAsync(role) == false)
+        {
+            Role newRole = new Role{ Name = role };
+            IdentityResult createRoleResult = await _roleManager.CreateAsync(newRole);
+            if (createRoleResult.Succeeded == false)
+            {
+                return createRoleResult;
+            }
+        }
+        return await _userManager.AddToRoleAsync(user, role);
     }
 
     public async Task<SignInResult> ChangePhoneNumAsync(User user, string phoneNumber, string token)
@@ -90,6 +94,11 @@ public class IdRepository : IIdRepository
     public Task<IdentityResult> CreateUserAsync(User user, string password)
     {
         return _userManager.CreateAsync(user, password);
+    }
+
+    public Task<User?> FindByIdAsync(Guid userId)
+    {
+        return _userManager.FindByIdAsync(userId.ToString());
     }
 
     public Task<User?> FindByPhoneNumberAsync(string phoneNumber)

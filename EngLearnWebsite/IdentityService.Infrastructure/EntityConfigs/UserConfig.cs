@@ -14,6 +14,7 @@ namespace IdentityService.Infrastructure.EntityConfigs
         public void Configure(EntityTypeBuilder<User> builder)
         {
             builder.ToTable("T_Users");  // 不管用，算了
+            builder.HasQueryFilter(user => user.IsDeleted == false);
         }
     }
 }

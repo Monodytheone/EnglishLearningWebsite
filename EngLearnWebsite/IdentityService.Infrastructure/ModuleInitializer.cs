@@ -11,6 +11,8 @@ internal class ModuleInitializer : IModuleInitializer
 {
     public void Initialize(IServiceCollection services)
     {
+        services.AddScoped<IIdRepository, IdRepository>();
         services.AddScoped<ISmsSender, MockSmsSender>();
+        services.AddScoped<IdDomainService>();
     }
 }

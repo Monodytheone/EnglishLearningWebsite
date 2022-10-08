@@ -1,5 +1,8 @@
+ï»¿using FluentValidation;
+using FluentValidation.AspNetCore;
 using IdentityService.Domain.Entities;
 using IdentityService.Infrastructure;
+using IdentityService.WebAPI.Controllers.Messages;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -26,15 +29,15 @@ try
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
 
-    builder.Services.RunModuleInitializers(ReflectionHelper.GetAllReferencedAssemblies());  // ÆôÓÃÄ£¿é»¯×¢²á
+    builder.Services.RunModuleInitializers(ReflectionHelper.GetAllReferencedAssemblies());  // å¯ç”¨æ¨¡å—åŒ–æ³¨å†Œ
 
-    // ¡ı¡ı¡ı¡ı¡ı¡ı¡ı±êÊ¶¿ò¼ÜÅäÖÃ¡ı¡ı¡ı¡ı¡ı¡ı¡ı¡ı
+    // â†“â†“â†“â†“â†“â†“â†“æ ‡è¯†æ¡†æ¶é…ç½®â†“â†“â†“â†“â†“â†“â†“â†“
     builder.Services.AddDbContext<IdDbContext>(optionsBuilder =>
     {
         string connStr = builder.Configuration.GetConnectionString("EngLearnWebsite");
         optionsBuilder.UseSqlServer(connStr);
-    });  // ÎÒ·ÇÒª°Ñ´ÓÊı¾İ¿âÅäÖÃÖĞ¶ÁÅäÖÃĞ´µ½Êı¾İ¿âÅäÖÃµÄÅäÖÃÖ®Ç°ĞĞ²»ĞĞ? ´ğ£ºĞĞµÄ£¬ÉÏÒ»¸ö·şÎñ¾ÍÕâÃ´¸ÉÁË£¬ËµÃ÷builder.Build()Ö®Ç°µÄË³ĞòÎŞËùÎ½µÄ
-    builder.Services.AddDataProtection();  // Õâ¸ö¶«Î÷ÔÚ±ğµÄÏîÄ¿Àïµã¶ù²»³öÀ´
+    });  // æˆ‘éè¦æŠŠä»æ•°æ®åº“é…ç½®ä¸­è¯»é…ç½®å†™åˆ°æ•°æ®åº“é…ç½®çš„é…ç½®ä¹‹å‰è¡Œä¸è¡Œ? ç­”ï¼šè¡Œçš„ï¼Œä¸Šä¸€ä¸ªæœåŠ¡å°±è¿™ä¹ˆå¹²äº†ï¼Œè¯´æ˜builder.Build()ä¹‹å‰çš„é¡ºåºæ— æ‰€è°“çš„
+    builder.Services.AddDataProtection();  // è¿™ä¸ªä¸œè¥¿åœ¨åˆ«çš„é¡¹ç›®é‡Œç‚¹å„¿ä¸å‡ºæ¥
     builder.Services.AddIdentityCore<User>(options =>
     {
         options.Password.RequireDigit = false;
@@ -48,18 +51,27 @@ try
     });
     IdentityBuilder idBuilder = new(typeof(User), typeof(Role), builder.Services);
     idBuilder.AddEntityFrameworkStores<IdDbContext>()
-        .AddDefaultTokenProviders()  // Õâ¸ö¶«Î÷ÔÚ±ğµÄÏîÄ¿Àïµã¶ù²»³öÀ´
+        .AddDefaultTokenProviders()  // è¿™ä¸ªä¸œè¥¿åœ¨åˆ«çš„é¡¹ç›®é‡Œç‚¹å„¿ä¸å‡ºæ¥
         .AddUserManager<UserManager<User>>()
         .AddRoleManager<RoleManager<Role>>();
-    // ¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü¡ü
+    // â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘
 
     builder.WebHost.ConfigureAppConfiguration((hostCtx, configBuilder) =>
     {
-        string connStr = Environment.GetEnvironmentVariable("ConnectionStrings:EngLearnWebsite");
+        string connStr = Environment.GetEnvironmentVariable("ConnectionStrings:EngLearnWebsite")!;
         configBuilder.AddDbConfiguration(() => new SqlConnection(connStr), reloadOnChange: true, reloadInterval: TimeSpan.FromSeconds(2));
-    });  // ÅäÖÃZack.AnyDbConfigProvider
+    });  // é…ç½®Zack.AnyDbConfigProvider
 
-    builder.Services.Configure<JWTOptions>(builder.Configuration.GetSection("JWT"));  //°ó¶¨JWTÅäÖÃÏî
+    builder.Services.Configure<JWTOptions>(builder.Configuration.GetSection("JWT"));  //ç»‘å®šJWTé…ç½®é¡¹
+
+    // â†“â†“â†“â†“â†“â†“â†“â†“ FluentValidation â†“â†“â†“â†“â†“â†“â†“â†“â†“â†“
+    builder.Services.AddFluentValidationAutoValidation();
+    //builder.Services.AddScoped<IValidator<LoginByPhoneNumAndPwdRequest>, LoginByPhoneNumAndPwdRequestValidator>();  // æ³¨å†Œä¸€ä¸ªValidator
+    builder.Services.AddValidatorsFromAssemblyContaining<LoginByPhoneNumAndPwdRequestValidator>();  // ä»åŒ…å«LoginByPhoneNumAndPwdRequestValidatorçš„ç¨‹åºé›†ä¸­åŠ è½½æ‰€æœ‰Validator
+    // â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘â†‘
+
+    JWTOptions jwtOptions = builder.Configuration.GetSection("JWT").Get<JWTOptions>();
+    builder.Services.AddJWTAuthentication(jwtOptions);  // Zack.JWTä¸­å¯¹JWTçš„é…ç½®
 
 
 
@@ -74,6 +86,7 @@ try
 
     app.UseHttpsRedirection();
 
+    app.UseAuthentication();
     app.UseAuthorization();
 
     app.MapControllers();
@@ -83,7 +96,7 @@ try
 catch (Exception exception)
 {
     // NLog: catch setup errors
-    logger.Error(exception, "ÒòÎªNLogµÄProgram.cs£¬Stopped program because of exception");
+    logger.Error(exception, "å› ä¸ºNLogçš„Program.csï¼ŒStopped program because of exception");
     throw;
 }
 finally

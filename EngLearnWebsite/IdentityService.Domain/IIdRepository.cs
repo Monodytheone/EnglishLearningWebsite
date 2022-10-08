@@ -13,6 +13,8 @@ namespace IdentityService.Domain
     /// </summary>
     public interface IIdRepository
     {
+        Task<User?> FindByIdAsync(Guid userId);
+
         /// <summary>
         /// 根据手机号寻找用户
         /// </summary>
@@ -48,6 +50,6 @@ namespace IdentityService.Domain
         /// </summary>
         Task ConfirmPhoneNumAsync(Guid id);
 
-        Task<IdentityResult> AddToRole(User user, string role);
+        Task<IdentityResult> AddToRoleAsync(User user, string role);
     }
 }
