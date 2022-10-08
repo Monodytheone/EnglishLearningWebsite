@@ -33,6 +33,19 @@ public class IdRepository : IIdRepository
         return await _userManager.AddToRoleAsync(user, role);
     }
 
+    public async Task<IdentityResult> ChangePasswordAsync(User user, string newPassword)
+    {
+        if (newPassword.Length < 6)
+        {
+            IdentityError err = new();
+            err.Code = "Password Inivalid";
+            err.Description = "密码长度不能少于6";
+            return IdentityResult.Failed(err);
+        }
+        string token = await _userManager.GeneratePasswordResetTokenAsync(user);
+        return await _userManager.ResetPasswordAsync(user, token, newPassword);
+    }
+
     public async Task<SignInResult> ChangePhoneNumAsync(User user, string phoneNumber, string token)
     {
         IdentityResult changeResult = await _userManager.ChangePhoneNumberAsync(user, phoneNumber, token);

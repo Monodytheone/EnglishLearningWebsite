@@ -51,5 +51,7 @@ namespace IdentityService.Domain
         Task ConfirmPhoneNumAsync(Guid id);
 
         Task<IdentityResult> AddToRoleAsync(User user, string role);
+
+        Task<IdentityResult> ChangePasswordAsync(User user, string newPassword);
     }
 }

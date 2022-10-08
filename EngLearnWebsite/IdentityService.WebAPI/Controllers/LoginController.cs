@@ -99,5 +99,26 @@ namespace IdentityService.WebAPI.Controllers
                 return StatusCode((int)HttpStatusCode.BadRequest, "登录失败");
             }
         }
+
+        [HttpPost]
+        [Authorize]
+        public async Task<ActionResult> ChangeMyPassword(ChangeMyPasswordRequest request)
+        {
+            Guid id = Guid.Parse(this.User.FindFirstValue(ClaimTypes.NameIdentifier));
+            User? user = await _repository.FindByIdAsync(id);
+            if (user == null)
+            {
+                return StatusCode((int)HttpStatusCode.NotFound, "获取用户信息失败");
+            }
+            IdentityResult result = await _repository.ChangePasswordAsync(user, request.NewPassword);
+            if (result.Succeeded)
+            {
+                return Ok("重设密码成功");
+            }
+            else
+            {
+                return BadRequest(result.Errors.SumErrors());
+            }
+        }
     }
 }

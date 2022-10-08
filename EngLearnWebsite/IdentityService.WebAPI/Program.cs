@@ -24,7 +24,7 @@ try
 
     // NLog: Setup NLog for Dependency injection
     builder.Logging.ClearProviders();
-    builder.Host.UseNLog();
+    builder.Host.UseNLog();  // 这么一搞控制台的输出直接没了，变到NLog里了
 
     builder.Services.AddEndpointsApiExplorer();
     builder.Services.AddSwaggerGen();
