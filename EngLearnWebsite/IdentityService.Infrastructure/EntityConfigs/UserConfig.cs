@@ -11,6 +11,7 @@ namespace IdentityService.Infrastructure.EntityConfigs
 {
     public class UserConfig : IEntityTypeConfiguration<User>
     {
+        // 看样子，这个配置类根本就没有起作用，有可能的话找找原因
         public void Configure(EntityTypeBuilder<User> builder)
         {
             builder.ToTable("T_Users");  // 不管用，算了

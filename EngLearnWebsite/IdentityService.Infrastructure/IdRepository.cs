@@ -4,22 +4,50 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
+using System.Text;
 
 namespace IdentityService.Infrastructure;
 
 public class IdRepository : IIdRepository
 {
-    private readonly UserManager<User> _userManager;
+    private readonly IdUserManager _userManager;
     private readonly RoleManager<Role> _roleManager;
     private readonly ILogger<IdRepository> _logger;
     private readonly IMemoryCache _memoryCache;
 
-    public IdRepository(UserManager<User> userManager, RoleManager<Role> roleManager, ILogger<IdRepository> logger, IMemoryCache memoryCache)
+    public IdRepository(IdUserManager userManager, RoleManager<Role> roleManager, ILogger<IdRepository> logger, IMemoryCache memoryCache)
     {
         _userManager = userManager;
         _roleManager = roleManager;
         _logger = logger;
         _memoryCache = memoryCache;
+    }
+
+    public async Task<(IdentityResult, User?, string? password)> AddAdminUserAsync(string userName, string phoneNumber)
+    {
+        if (await this.FindByUserNameAsync(userName) != null)
+        {
+            return (ErrorIdentityResult($"用户名 {userName} 已存在"), null, null);
+        }
+        if (await this.FindByPhoneNumberAsync(phoneNumber) != null)
+        {
+            return (ErrorIdentityResult($"手机号 {phoneNumber} 已注册过"), null, null);
+        }
+        User user = new(userName);
+        user.PhoneNumber = phoneNumber;
+        user.PhoneNumberConfirmed = true;
+        string password = this.GeneratePassword();
+        IdentityResult createResult = await this.CreateUserAsync(user, password);
+        if (createResult.Succeeded == false)
+        {
+            return (createResult, null, null);
+        }
+        IdentityResult addToAdminResult = await _userManager.AddToRoleAsync(user, "Admin");
+        if (addToAdminResult.Succeeded == false)
+        {
+            return (addToAdminResult, null, null);
+        }
+        return (IdentityResult.Success, user, password);
     }
 
     public async Task<IdentityResult> AddToRoleAsync(User user, string role)
@@ -149,5 +177,65 @@ public class IdRepository : IIdRepository
         _memoryCache.Set($"EngLearnSignInCode_{phoneNumber}", code, TimeSpan.FromMinutes(5));
     }
 
-    
+    private string GeneratePassword()
+    {
+        PasswordOptions options = _userManager.Options.Password;
+        int length = options.RequiredLength;
+        bool nonAlphanumeric = options.RequireNonAlphanumeric;
+        bool digit = options.RequireDigit;
+        bool lowercase = options.RequireLowercase;
+        bool uppercase = options.RequireUppercase;
+
+        StringBuilder password = new();
+        Random random = new();
+        while (password.Length < length)
+        {
+            char c = (char)random.Next(32, 126);
+            password.Append(c);
+            if (char.IsDigit(c))
+                digit = false;
+            else if (Char.IsLower(c))
+                lowercase = false;
+            else if (char.IsUpper(c))
+                uppercase = false;
+            else if (!char.IsLetterOrDigit(c))
+                nonAlphanumeric = false;
+        }
+
+        if (nonAlphanumeric)
+            password.Append((char)random.Next(33, 48));
+        if (digit)
+            password.Append((char)random.Next(48, 58));
+        if (uppercase)
+            password.Append((char)random.Next(65, 91));
+        if (lowercase)
+            password.Append((char)random.Next(97, 123));
+
+        return password.ToString();        
+    }
+
+    private static IdentityResult ErrorIdentityResult(string msg)
+    {
+        var identityError = new IdentityError { Description = msg };
+        return IdentityResult.Failed(identityError);
+    }
+
+    public async Task<IdentityResult> UserSoftDelete(Guid id)
+    {
+        User? user = await this.FindByIdAsync(id);
+        IUserLoginStore<User> userLoginStore = _userManager.GetUserLoginStore();
+        var noneCT = default(CancellationToken);
+
+        //一定要删除aspnetuserlogins表中的数据，否则再次用这个外部登录登录的话
+        //就会报错：The instance of entity type 'IdentityUserLogin<Guid>' cannot be tracked because another instance with the same key value for {'LoginProvider', 'ProviderKey'} is already being tracked.
+        //而且要先删除aspnetuserlogins数据，再软删除User
+        var logins = await userLoginStore.GetLoginsAsync(user, noneCT);
+        foreach (var login in logins)
+        {
+            await userLoginStore.RemoveLoginAsync(user, login.LoginProvider, login.ProviderKey, noneCT);
+        }
+        user.SoftDelete();
+        IdentityResult result = await _userManager.UpdateAsync(user);
+        return result;
+    }
 }

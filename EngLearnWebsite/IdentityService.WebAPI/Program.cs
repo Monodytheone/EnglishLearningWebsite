@@ -3,11 +3,15 @@ using FluentValidation.AspNetCore;
 using IdentityService.Domain.Entities;
 using IdentityService.Infrastructure;
 using IdentityService.WebAPI.Controllers.Messages;
+using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using NLog;
 using NLog.Web;
+using NLog.Web.LayoutRenderers;
+using System.Reflection;
 using Zack.Commons;
 using Zack.JWT;
 
@@ -52,7 +56,7 @@ try
     IdentityBuilder idBuilder = new(typeof(User), typeof(Role), builder.Services);
     idBuilder.AddEntityFrameworkStores<IdDbContext>()
         .AddDefaultTokenProviders()  // 这个东西在别的项目里点儿不出来
-        .AddUserManager<UserManager<User>>()
+        .AddUserManager<IdUserManager>()
         .AddRoleManager<RoleManager<Role>>();
     // ↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑↑
 
@@ -72,6 +76,26 @@ try
 
     JWTOptions jwtOptions = builder.Configuration.GetSection("JWT").Get<JWTOptions>();
     builder.Services.AddJWTAuthentication(jwtOptions);  // Zack.JWT中对JWT的配置
+
+    builder.Services.AddMediatR(Assembly.GetExecutingAssembly());
+
+    // 让Swagger中带上Authorization报文头
+    builder.Services.AddSwaggerGen(opt =>
+    {
+        OpenApiSecurityScheme scheme = new()
+        {
+            Description = "Authorization报文头. \r\n例如：Bearer ey234927349dhhsdid",
+            Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Authorization" },
+            Scheme = "oauth2",
+            Name = "Authorization",
+            In = ParameterLocation.Header,
+            Type = SecuritySchemeType.ApiKey,
+        };
+        opt.AddSecurityDefinition("Authorization", scheme);
+        OpenApiSecurityRequirement requirement = new();
+        requirement[scheme] = new List<string>();
+        opt.AddSecurityRequirement(requirement);
+    });
 
 
 

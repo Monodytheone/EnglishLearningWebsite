@@ -57,5 +57,15 @@ namespace IdentityService.Domain
         void SaveSmsCode(string phoneNumber, string code);
 
         string? RetrieveSmsCode(string phoneNumber);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="userName"></param>
+        /// <param name="phoneNumber"></param>
+        /// <returns>返回的第三个值是生成的密码</returns>
+        Task<(IdentityResult, User?, string? password)> AddAdminUserAsync(string userName, string phoneNumber);
+
+        Task<IdentityResult> UserSoftDelete(Guid id);
     }
 }

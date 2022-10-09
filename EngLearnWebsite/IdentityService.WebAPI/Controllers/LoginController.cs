@@ -44,7 +44,7 @@ namespace IdentityService.WebAPI.Controllers
             Debug.Assert(changePhoneResult.Succeeded);
             result = await _repository.AddToRoleAsync(user, "User");
             Debug.Assert(result.Succeeded);
-            result = await _repository.AddToRoleAsync(user, "Admin");  // 所以说Role的名字大概是不区分大小写的
+            result = await _repository.AddToRoleAsync(user, "Admin");
             Debug.Assert(result.Succeeded);
             return Ok("管理员初始化成功");
         }
