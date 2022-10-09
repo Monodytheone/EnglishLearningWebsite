@@ -2,6 +2,7 @@
 using IdentityService.Domain.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 namespace IdentityService.Infrastructure;
@@ -11,12 +12,14 @@ public class IdRepository : IIdRepository
     private readonly UserManager<User> _userManager;
     private readonly RoleManager<Role> _roleManager;
     private readonly ILogger<IdRepository> _logger;
+    private readonly IMemoryCache _memoryCache;
 
-    public IdRepository(UserManager<User> userManager, RoleManager<Role> roleManager, ILogger<IdRepository> logger)
+    public IdRepository(UserManager<User> userManager, RoleManager<Role> roleManager, ILogger<IdRepository> logger, IMemoryCache memoryCache)
     {
         _userManager = userManager;
         _roleManager = roleManager;
         _logger = logger;
+        _memoryCache = memoryCache;
     }
 
     public async Task<IdentityResult> AddToRoleAsync(User user, string role)
@@ -111,7 +114,7 @@ public class IdRepository : IIdRepository
 
     public Task<User?> FindByIdAsync(Guid userId)
     {
-        return _userManager.FindByIdAsync(userId.ToString());
+        return _userManager.FindByIdAsync(userId.ToString())!;
     }
 
     public Task<User?> FindByPhoneNumberAsync(string phoneNumber)
@@ -121,7 +124,7 @@ public class IdRepository : IIdRepository
 
     public Task<User?> FindByUserNameAsync(string userName)
     {
-        return _userManager.FindByNameAsync(userName);
+        return _userManager.FindByNameAsync(userName)!;
     }
 
     public Task<string> GenerateChangePhoneNumberTokenAsync(User user, string phoneNumber)
@@ -133,4 +136,18 @@ public class IdRepository : IIdRepository
     {
         return _userManager.GetRolesAsync(user);
     }
+
+    public string? RetrieveSmsCode(string phoneNumber)
+    {
+        string code = (string)_memoryCache.Get($"EngLearnSignInCode_{phoneNumber}");
+        _memoryCache.Remove($"EngLearnSignInCode_{phoneNumber}");
+        return code;
+    }
+
+    public void SaveSmsCode(string phoneNumber, string code)
+    {
+        _memoryCache.Set($"EngLearnSignInCode_{phoneNumber}", code, TimeSpan.FromMinutes(5));
+    }
+
+    
 }

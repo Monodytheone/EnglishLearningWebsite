@@ -17,12 +17,14 @@ namespace IdentityService.Domain
         private readonly IIdRepository _repository;
         private readonly ITokenService _tokenService;  // 这玩意儿需不需要自己注册一下？
         private readonly IOptionsSnapshot<JWTOptions> _jwtOptions;
+        private readonly ISmsSender _smsSender;
 
-        public IdDomainService(IIdRepository idRepository, ITokenService tokenService, IOptionsSnapshot<JWTOptions> jwtOptions)
+        public IdDomainService(IIdRepository idRepository, ITokenService tokenService, IOptionsSnapshot<JWTOptions> jwtOptions, ISmsSender smsSender)
         {
             _repository = idRepository;
             _tokenService = tokenService;
             _jwtOptions = jwtOptions;
+            _smsSender = smsSender;
         }
 
         public async Task<(SignInResult, string?)> LoginByPhoneAndPwd(string phoneNumber, string password)
@@ -62,6 +64,42 @@ namespace IdentityService.Domain
             else
             {
                 return (signInResult, null);
+            }
+        }
+
+        public async Task<SignInResult> SendSignInSmsCodeAsync(string phoneNumber)  // 记得用这个试试软删除
+        {
+            User? user = await _repository.FindByPhoneNumberAsync(phoneNumber);
+            if (user == null)
+            {
+                return SignInResult.Failed;
+            }
+            string code = Random.Shared.Next(1, 9999).ToString();
+            _repository.SaveSmsCode(phoneNumber, code);
+            await _smsSender.SendAsync(phoneNumber, code);
+            return SignInResult.Success;
+        }
+
+        public async Task<(SignInResult, string?)> LoginByPhoneNumAndSmsCodeAsync(string phoneNumber, string code)
+        {
+            User? user = await _repository.FindByPhoneNumberAsync(phoneNumber);
+            if (user == null)
+            {
+                return (SignInResult.Failed, null);
+            }
+            string? serverSideCode = _repository.RetrieveSmsCode(phoneNumber);
+            if (serverSideCode == null)
+            {
+                return (SignInResult.Failed, null);
+            }
+            if (code == serverSideCode)
+            {
+                string token = await this.BuildTokenAsync(user);
+                return (SignInResult.Success, token);
+            }
+            else
+            {
+                return (SignInResult.Failed, null);
             }
         }
 

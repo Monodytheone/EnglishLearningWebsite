@@ -53,5 +53,9 @@ namespace IdentityService.Domain
         Task<IdentityResult> AddToRoleAsync(User user, string role);
 
         Task<IdentityResult> ChangePasswordAsync(User user, string newPassword);
+
+        void SaveSmsCode(string phoneNumber, string code);
+
+        string? RetrieveSmsCode(string phoneNumber);
     }
 }

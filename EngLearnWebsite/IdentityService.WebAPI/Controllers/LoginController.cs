@@ -120,5 +120,28 @@ namespace IdentityService.WebAPI.Controllers
                 return BadRequest(result.Errors.SumErrors());
             }
         }
+
+        [HttpPost]
+        public async Task<ActionResult> SendSignInCode(SendSignInCodeRequest request)
+        {
+            SignInResult sendResult = await _domainService.SendSignInSmsCodeAsync(request.PhoneNumber);
+            if (sendResult.Succeeded == false)
+            {
+                return BadRequest("发送失败");
+            }
+            return Ok("发送成功");
+        }
+
+        [HttpPost]
+        public async Task<ActionResult<string?>> LoginByPhoneNumAndSmsCode(LoginByPhoneNumAndSmsCodeRequest request)
+        {
+            (SignInResult loginResult, string? token) =
+               await _domainService.LoginByPhoneNumAndSmsCodeAsync(request.PhoneNumber, request.Code);
+            if (loginResult.Succeeded == false)
+            {
+                return BadRequest("登录失败");
+            }
+            return token;
+        }
     }
 }
