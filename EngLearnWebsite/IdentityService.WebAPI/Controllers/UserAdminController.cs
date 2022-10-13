@@ -69,4 +69,35 @@ public class UserAdminController : ControllerBase
         await _repository.UserSoftDelete(id);
         return Ok();
     }
+
+    [HttpPut]
+    [Route("{id}")]
+    public async Task<ActionResult> UpdateAdminUser(Guid id, EditAdminUserRequest request)
+    {
+        User? user = await _repository.FindByIdAsync(id);
+        if (user == null)
+        {
+            return NotFound("用户不存在");
+        }
+        user.PhoneNumber = request.PhoneNumber;
+        IdentityResult result = await _userManager.UpdateAsync(user);
+        if (result.Succeeded == false)
+        {
+            return BadRequest(result.Errors.SumErrors());
+        }
+        else return Ok();
+    }
+
+    [HttpPost]
+    [Route("{id}")]
+    public async Task<ActionResult> ResetAdminUserPassword(Guid id)
+    {
+        var outCome = await _repository.ResetPasswordAsync(id);
+        if (outCome.idResult.Succeeded == false)
+        {
+            return BadRequest(outCome.idResult.Errors.SumErrors());
+        }
+        await _mediator.Publish(new PasswordResetEvent(outCome.user!.PhoneNumber, outCome.user.UserName, outCome.password!));
+        return Ok();
+    }
 }

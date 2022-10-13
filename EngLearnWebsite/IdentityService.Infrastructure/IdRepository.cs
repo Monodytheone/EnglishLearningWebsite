@@ -238,4 +238,24 @@ public class IdRepository : IIdRepository
         IdentityResult result = await _userManager.UpdateAsync(user);
         return result;
     }
+
+    public async Task<(IdentityResult idResult, User? user, string? password)> ResetPasswordAsync(Guid id)
+    {
+        User? user = await this.FindByIdAsync(id);
+        if (user == null)
+        {
+            return (ErrorIdentityResult("用户不存在"), null, null);
+        }
+        string password = this.GeneratePassword();
+        string resetToken = await _userManager.GeneratePasswordResetTokenAsync(user);
+        IdentityResult result = await _userManager.ResetPasswordAsync(user, resetToken, password);
+        if (result.Succeeded == false)
+        {
+            return (result, null, null);
+        }
+        else
+        {
+            return (result, user, password);
+        }
+    }
 }

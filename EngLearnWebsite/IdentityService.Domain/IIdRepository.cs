@@ -67,5 +67,7 @@ namespace IdentityService.Domain
         Task<(IdentityResult, User?, string? password)> AddAdminUserAsync(string userName, string phoneNumber);
 
         Task<IdentityResult> UserSoftDelete(Guid id);
+
+        Task<(IdentityResult idResult, User? user, string? password)> ResetPasswordAsync(Guid id);
     }
 }
