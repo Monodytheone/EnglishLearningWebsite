@@ -11,7 +11,7 @@ namespace FileService.WebAPI.Controllers;
 [Route("api/[controller]/[action]")]
 [ApiController]
 [UnitOfWork(typeof(FSDbContext))]
-//[Authorize(Roles = "Admin")]
+[Authorize(Roles = "Admin")]
 public class UploaderController : ControllerBase
 {
     private readonly IFSRepository _fsRepository;

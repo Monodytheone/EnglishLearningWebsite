@@ -15,11 +15,21 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileService.SDK.NETCore", "
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "IdentiyService", "IdentiyService", "{CC335D14-383F-4FE2-900E-92E9958A5652}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityService.Domain", "IdentityService.Domain\IdentityService.Domain.csproj", "{925A706F-120E-470B-A108-5797CF128569}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityService.Domain", "IdentityService.Domain\IdentityService.Domain.csproj", "{925A706F-120E-470B-A108-5797CF128569}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityService.Infrastructure", "IdentityService.Infrastructure\IdentityService.Infrastructure.csproj", "{7A2B11C4-25CC-4055-90A3-BCD146BEA2AB}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityService.Infrastructure", "IdentityService.Infrastructure\IdentityService.Infrastructure.csproj", "{7A2B11C4-25CC-4055-90A3-BCD146BEA2AB}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityService.WebAPI", "IdentityService.WebAPI\IdentityService.WebAPI.csproj", "{14C9BE06-19BE-4366-8FF1-5F2E61A5366E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IdentityService.WebAPI", "IdentityService.WebAPI\IdentityService.WebAPI.csproj", "{14C9BE06-19BE-4366-8FF1-5F2E61A5366E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Listening", "Listening", "{A7038CA6-21C9-4172-AC47-34F07AFA15A1}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Listening.Domain", "Listening.Domain\Listening.Domain.csproj", "{04AC065C-F53F-45FD-B69F-277523A62281}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Listening.Infrastructure", "Listening.Infrastructure\Listening.Infrastructure.csproj", "{5ED2CB42-2EDB-4411-87EE-3AAED8DC8CD4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Listening.Admin.WebAPI", "Listening.Admin.WebAPI\Listening.Admin.WebAPI.csproj", "{6A269430-0F05-4A9D-AECB-E8B1E966BAE9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Listening.Main.WebAPI", "Listening.Main.WebAPI\Listening.Main.WebAPI.csproj", "{551CC0BB-668C-46E5-BD74-947773112151}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -55,6 +65,22 @@ Global
 		{14C9BE06-19BE-4366-8FF1-5F2E61A5366E}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{14C9BE06-19BE-4366-8FF1-5F2E61A5366E}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{14C9BE06-19BE-4366-8FF1-5F2E61A5366E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{04AC065C-F53F-45FD-B69F-277523A62281}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{04AC065C-F53F-45FD-B69F-277523A62281}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{04AC065C-F53F-45FD-B69F-277523A62281}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{04AC065C-F53F-45FD-B69F-277523A62281}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5ED2CB42-2EDB-4411-87EE-3AAED8DC8CD4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5ED2CB42-2EDB-4411-87EE-3AAED8DC8CD4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5ED2CB42-2EDB-4411-87EE-3AAED8DC8CD4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5ED2CB42-2EDB-4411-87EE-3AAED8DC8CD4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6A269430-0F05-4A9D-AECB-E8B1E966BAE9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6A269430-0F05-4A9D-AECB-E8B1E966BAE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6A269430-0F05-4A9D-AECB-E8B1E966BAE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6A269430-0F05-4A9D-AECB-E8B1E966BAE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{551CC0BB-668C-46E5-BD74-947773112151}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{551CC0BB-668C-46E5-BD74-947773112151}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{551CC0BB-668C-46E5-BD74-947773112151}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{551CC0BB-668C-46E5-BD74-947773112151}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -67,6 +93,10 @@ Global
 		{925A706F-120E-470B-A108-5797CF128569} = {CC335D14-383F-4FE2-900E-92E9958A5652}
 		{7A2B11C4-25CC-4055-90A3-BCD146BEA2AB} = {CC335D14-383F-4FE2-900E-92E9958A5652}
 		{14C9BE06-19BE-4366-8FF1-5F2E61A5366E} = {CC335D14-383F-4FE2-900E-92E9958A5652}
+		{04AC065C-F53F-45FD-B69F-277523A62281} = {A7038CA6-21C9-4172-AC47-34F07AFA15A1}
+		{5ED2CB42-2EDB-4411-87EE-3AAED8DC8CD4} = {A7038CA6-21C9-4172-AC47-34F07AFA15A1}
+		{6A269430-0F05-4A9D-AECB-E8B1E966BAE9} = {A7038CA6-21C9-4172-AC47-34F07AFA15A1}
+		{551CC0BB-668C-46E5-BD74-947773112151} = {A7038CA6-21C9-4172-AC47-34F07AFA15A1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BC89C0CE-F151-41A1-9C75-0A31A05C6AB8}
