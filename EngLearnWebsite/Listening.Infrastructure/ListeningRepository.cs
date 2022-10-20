@@ -64,7 +64,7 @@ public class ListeningRepository : IListeningRepository
         //{
         //    return Task.FromResult(0);
         //}
-        int? maxSeq = await _dbContext.Categories.MaxAsync(c => (int?)c.SequenceNumber);  // 这么就处理的一条数据也没有的问题
+        int? maxSeq = await _dbContext.Categories.MaxAsync(c => (int?)c.SequenceNumber);  // 就这么处理一条数据也没有的问题
         return maxSeq ?? 0;
     }
 
