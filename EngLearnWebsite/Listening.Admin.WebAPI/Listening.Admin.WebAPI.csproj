@@ -7,11 +7,11 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.2.2" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.3" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Controllers\" />
+    <PackageReference Include="Zack.AnydbConfigProvider" Version="1.1.4" />
+    <PackageReference Include="Zack.aspnetcore" Version="1.0.2" />
+    <PackageReference Include="Zack.jwt" Version="1.0.1" />
   </ItemGroup>
 
   <ItemGroup>

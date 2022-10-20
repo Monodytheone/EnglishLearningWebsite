@@ -1,4 +1,5 @@
-﻿using Zack.Commons;
+﻿using MediatR;
+using Zack.Commons;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,8 @@ builder.Services.AddSwaggerGen();
 
 // 启用Zack.Commons提供的各项目自己进行自己提供的服务的注册
 builder.Services.RunModuleInitializers(ReflectionHelper.GetAllReferencedAssemblies());
+
+builder.Services.AddMediatR(ReflectionHelper.GetAllReferencedAssemblies());
 
 var app = builder.Build();
 
