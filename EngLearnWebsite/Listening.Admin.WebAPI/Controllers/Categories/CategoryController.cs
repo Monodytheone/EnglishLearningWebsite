@@ -23,15 +23,17 @@ public class CategoryController : ControllerBase
     private readonly ListeningDomainService _domainService;
     private readonly IValidator<CategoryAddRequest> _addRequestValidator;
     private readonly IValidator<CategoryUpdateRequest> _updateRequestValidator;
+    private readonly IValidator<CategoriesSortRequest> _sortRequestValidator;
     private readonly ListeningDbContext _dbContext;
 
-    public CategoryController(IListeningRepository repository, ListeningDomainService domainService, IValidator<CategoryAddRequest> addRequestValidator, ListeningDbContext dbContext, IValidator<CategoryUpdateRequest> updateRequestValidator)
+    public CategoryController(IListeningRepository repository, ListeningDomainService domainService, IValidator<CategoryAddRequest> addRequestValidator, ListeningDbContext dbContext, IValidator<CategoryUpdateRequest> updateRequestValidator, IValidator<CategoriesSortRequest> sortRequestValidator)
     {
         _repository = repository;
         _domainService = domainService;
         _addRequestValidator = addRequestValidator;
         _dbContext = dbContext;
         _updateRequestValidator = updateRequestValidator;
+        _sortRequestValidator = sortRequestValidator;
     }
 
     [HttpGet]
@@ -84,6 +86,37 @@ public class CategoryController : ControllerBase
             return NotFound($"categoryId={id}不存在");
         }
         category.ChangeName(request.Name).ChangeCoverUrl(request.CoverUrl).NotifyModified();
+        return Ok();
+    }
+
+    /// <summary>
+    /// 幂等的软删除
+    /// </summary>
+    [HttpDelete]
+    [Route("{id}")]
+    public async Task<ActionResult> DeleteById([RequiredGuid] Guid id)
+    {
+        Category? category = await _repository.GetCategoryByIdAsync(id);
+        if (category == null)
+        {//这样做仍然是幂等的，因为“调用N次，确保服务器处于与第一次调用相同的状态。”与响应无关
+            return NotFound($"id不存在");
+        }
+        category.SoftDelete();
+        return Ok();
+    }
+
+    [HttpPut]
+    public async Task<ActionResult> Sort(CategoriesSortRequest request)
+    {
+        var validationResult = await _sortRequestValidator.ValidateAsync(request);   
+        if (validationResult.IsValid == false)
+        {
+            return BadRequest(validationResult.Errors.Select(error => error.ErrorMessage));
+        }
+
+        await _domainService.SortCategoriesAsync(request.SortedCategoryIds);
+        // 目前，_domainService.SortCategoriesAsync如果执行失败是会直接把抛的错500返回给前端的。若要想处理，则需要让这个方法返回结果，在Action里根据结果来返回值
+
         return Ok();
     }
 }
