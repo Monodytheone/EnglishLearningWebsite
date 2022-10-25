@@ -33,6 +33,12 @@ namespace Listening.Domain.Entities.ValueObjects
             Format = type;
         }
 
+        public Subtitle(string content, string type)
+        {
+            Content = content ?? throw new ArgumentNullException(nameof(content));
+            Format = Enum.Parse<SubtitleType>(type);
+        }
+
         public Subtitle ChangeContent(string newContent)
         {
             this.Content = newContent;

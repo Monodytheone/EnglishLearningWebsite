@@ -1,14 +1,11 @@
-﻿using AsmResolver.PE.Relocations;
-using FluentValidation;
+﻿using FluentValidation;
 using Listening.Admin.WebAPI.Controllers.Categories.Requests;
 using Listening.Domain;
 using Listening.Domain.Entities;
 using Listening.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
-using System.Net;
 using Zack.ASPNETCore;
 
 namespace Listening.Admin.WebAPI.Controllers.Categories;

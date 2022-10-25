@@ -1,13 +1,18 @@
 ﻿using FluentValidation;
+using Listening.Admin.WebAPI;
 using Listening.Admin.WebAPI.Controllers.Categories.Requests;
 using Listening.Infrastructure;
 using MediatR;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using StackExchange.Redis;
+using System.Reflection;
 using Zack.ASPNETCore;
 using Zack.Commons;
+using Zack.EventBus;
 using Zack.JWT;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -49,6 +54,23 @@ builder.Services.Configure<MvcOptions>(mvcOptions =>
 {
     mvcOptions.Filters.Add<UnitOfWorkFilter>();  // 启用工作单元Filter
 });
+
+//Redis
+string redisConnstr = builder.Configuration.GetValue<string>("Redis:ConnStr");
+IConnectionMultiplexer redisConnMultipleser = ConnectionMultiplexer.Connect(redisConnstr);
+builder.Services.AddSingleton(typeof(IConnectionMultiplexer), redisConnMultipleser);
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.All;
+});
+
+// 注册服务
+builder.Services.AddScoped<EpisodeEncodeHelper>();
+
+// Zack.EventBus
+builder.Services.Configure<IntegrationEventRabbitMQOptions>(builder.Configuration.GetSection("RabbitMQ"));
+builder.Services.AddEventBus("Listening.Admin", ReflectionHelper.GetAllReferencedAssemblies());
+
 
 
 var app = builder.Build();

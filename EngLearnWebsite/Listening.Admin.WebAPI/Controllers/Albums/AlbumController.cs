@@ -24,14 +24,16 @@ namespace Listening.Admin.WebAPI.Controllers.Albums
         // FluentValidator手动模式的校验器
         private readonly IValidator<AlbumAddRequest> _addValidator;
         private readonly IValidator<AlbumUpdateRequest> _updateValidator;
+        private readonly IValidator<AlbumSortRequest> _sortValidator;
 
-        public AlbumController(ListeningDomainService domainService, IListeningRepository repository, ListeningDbContext dbContext, IValidator<AlbumAddRequest> addValidator, IValidator<AlbumUpdateRequest> updateValidator)
+        public AlbumController(ListeningDomainService domainService, IListeningRepository repository, ListeningDbContext dbContext, IValidator<AlbumAddRequest> addValidator, IValidator<AlbumUpdateRequest> updateValidator, IValidator<AlbumSortRequest> sortValidator)
         {
             _domainService = domainService;
             _repository = repository;
             _dbContext = dbContext;
             _addValidator = addValidator;
             _updateValidator = updateValidator;
+            _sortValidator = sortValidator;
         }
 
         [HttpGet]
@@ -72,10 +74,79 @@ namespace Listening.Admin.WebAPI.Controllers.Albums
         }
 
         [HttpPut]
-        [Route("{id}")]
-        public Task<ActionResult> Update([RequiredGuid] Guid id, AlbumUpdateRequest request)
+        [Route("{id}")]  // 试图RESTful一点
+        public async Task<ActionResult> Update([RequiredGuid] Guid id, AlbumUpdateRequest request)
         {
+            var validationResult = await _updateValidator.ValidateAsync(request);
+            if (validationResult.IsValid == false)
+            {
+                return BadRequest(validationResult.Errors.Select(error => error.ErrorMessage));
+            }
 
+            Album? album = await _repository.GetAlbumByIdAsync(id);
+            if (album == null)
+            {
+                return NotFound("id不存在");
+            }
+
+            album.ChangeName(request.Name);
+            return Ok();
+        }
+
+        [HttpDelete]
+        [Route("{id}")]
+        public async Task<ActionResult> DeleteById([RequiredGuid] Guid id)
+        {
+            Album? album = await _repository.GetAlbumByIdAsync(id);
+            if (album == null)
+            {
+                //return Ok();
+                return NotFound("id不存在");  // 这样做仍然是幂等的，因为“调用N次，确保服务器处于与第一次调用相同的状态。”与响应无关
+            }
+
+            album.SoftDelete();
+            return Ok();
+        }
+
+        [HttpPut]
+        [Route("{id}")]
+        public async Task<ActionResult> Hide([RequiredGuid] Guid id)
+        {
+            Album? album = await _repository.GetAlbumByIdAsync(id);
+            if (album == null)
+            {
+                return NotFound("未找到对应的album");
+            }
+
+            _ = album.Hide();
+            return Ok();
+        }
+
+        [HttpPut]
+        [Route("{id}")]
+        public async Task<ActionResult> Show([RequiredGuid] Guid id)
+        {
+            Album? album = await _repository.GetAlbumByIdAsync(id);
+            if (album == null)
+            {
+                return NotFound("未找到album");
+            }
+
+            _ = album.Show();
+            return Ok();
+        }
+
+        [HttpPut]
+        public async Task<ActionResult> Sort(AlbumSortRequest request)
+        {
+            var validationResult = await _sortValidator.ValidateAsync(request);
+            if (validationResult.IsValid == false)
+            {
+                return BadRequest(validationResult.Errors.Select(error => error.ErrorMessage));
+            }
+
+            await _domainService.SortAlbumsAsync(request.CagetoryId, request.SortedAlbumIds);
+            return Ok();
         }
     }
 }
