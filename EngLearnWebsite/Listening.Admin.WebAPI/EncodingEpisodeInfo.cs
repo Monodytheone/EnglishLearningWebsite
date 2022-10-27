@@ -9,10 +9,8 @@ namespace Listening.Admin.WebAPI;
 public enum EncodeStatus
 {
     Created,
-
-    /// <summary>
-    /// 已完成
-    /// </summary>
+    Started,
+    Failed,
     Completed,
 }
 

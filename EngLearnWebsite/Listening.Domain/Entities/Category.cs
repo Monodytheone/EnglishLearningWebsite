@@ -49,4 +49,10 @@ public record Category : AggregateRootEntity, IAggregateRoot
         this.CoverUrl = newUrl;
         return this;
     }
+
+    public override void SoftDelete()
+    {
+        base.SoftDelete();
+        this.SequenceNumber = -1;
+    }
 }

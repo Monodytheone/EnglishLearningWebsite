@@ -1,4 +1,8 @@
-﻿using MediatR;
+﻿using Listening.Infrastructure;
+using MediatR;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Zack.ASPNETCore;
 using Zack.Commons;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,6 +18,21 @@ builder.Services.AddSwaggerGen();
 builder.Services.RunModuleInitializers(ReflectionHelper.GetAllReferencedAssemblies());
 
 builder.Services.AddMediatR(ReflectionHelper.GetAllReferencedAssemblies());
+
+builder.Services.AddDbContext<ListeningDbContext>(optionsBuilder =>
+{
+    string connStr = builder.Configuration.GetConnectionString("EngLearnWebsite");
+    optionsBuilder.UseSqlServer(connStr);
+});
+
+// 注册Zack.AspNetCore中的内存缓存帮助类
+builder.Services.AddScoped<IMemoryCacheHelper, MemoryCacheHelper>();  
+
+// Filter
+builder.Services.Configure<MvcOptions>(mvcOptions =>
+{
+    mvcOptions.Filters.Add<UnitOfWorkFilter>();  // 启用工作单元Filter
+});
 
 var app = builder.Build();
 

@@ -43,6 +43,22 @@ public class EpisodeEncodeHelper
         return values.Select(value => Guid.Parse(value));
     }
 
+    /// <summary>
+    /// 修改Episode的转码状态
+    /// </summary>
+    /// <param name="episodeId"></param>
+    /// <param name="status"></param>
+    /// <returns></returns>
+    public async Task UpdateEpisodeEncodingStatusAsync(Guid episodeId, EncodeStatus status)
+    {
+        string episodeKey = EpisodeEncodeHelper.GetRedisKeyForEpisode(episodeId);
+        var db = _redisConn.GetDatabase();
+        string originalJson = await db.StringGetAsync(episodeKey);
+        EncodingEpisodeInfo encodingEpisodeInfo = originalJson.ParseJson<EncodingEpisodeInfo>()!;
+        encodingEpisodeInfo = encodingEpisodeInfo with { Status = status };
+        await db.StringSetAsync(episodeKey, encodingEpisodeInfo.ToJsonString());
+    }
+
     private static string GetRedisKeyForEpisode(Guid episodeId)
     {
         string redisKey = $"Listening.EncodingEpisode.{episodeId}";

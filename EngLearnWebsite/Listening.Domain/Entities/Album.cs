@@ -63,5 +63,11 @@ namespace Listening.Domain.Entities
             this.IsVisible = false;
             return this;
         }
+
+        public override void SoftDelete()
+        {
+            base.SoftDelete();
+            this.SequenceNumber = -1;
+        }
     }
 }

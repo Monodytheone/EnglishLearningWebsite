@@ -10,6 +10,11 @@ public interface IListeningRepository
 
 
     Task<Album[]> GetAlbumsByCategoryIdAsync(Guid categoryId);
+
+    /// <summary>
+    /// 获得所有的Category
+    /// </summary>
+    /// <returns>根据SequenceNumber排好序的Category数组</returns>
     Task<Category[]> GetAllCategoriesAsync();
     Task<Episode[]> GetEpisodesByAlbumIdAsync(Guid albumId);
 

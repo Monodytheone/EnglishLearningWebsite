@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using Listening.Admin.WebAPI;
 using Listening.Admin.WebAPI.Controllers.Categories.Requests;
+using Listening.Admin.WebAPI.Hubs;
 using Listening.Infrastructure;
 using MediatR;
 using Microsoft.AspNetCore.HttpOverrides;
@@ -71,6 +72,7 @@ builder.Services.AddScoped<EpisodeEncodeHelper>();
 builder.Services.Configure<IntegrationEventRabbitMQOptions>(builder.Configuration.GetSection("RabbitMQ"));
 builder.Services.AddEventBus("Listening.Admin", ReflectionHelper.GetAllReferencedAssemblies());
 
+builder.Services.AddSignalR();
 
 
 var app = builder.Build();
@@ -87,6 +89,7 @@ app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.MapHub<EpisodeEncodingStatusHub>("/Hubs/EpisodeEncodingStatusHub");
 app.MapControllers();
 
 app.Run();

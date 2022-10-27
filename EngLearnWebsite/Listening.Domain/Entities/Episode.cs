@@ -96,6 +96,7 @@ public record Episode : AggregateRootEntity, IAggregateRoot
     public override void SoftDelete()
     {
         base.SoftDelete();
+        this.SequenceNumber = -1;  // 软删除的序号都设为-1，这样数据库看起来不乱
         this.AddDomainEventIfAbsent(new EpisodeSoftDeleteNotification(this.Id));
     }
 
