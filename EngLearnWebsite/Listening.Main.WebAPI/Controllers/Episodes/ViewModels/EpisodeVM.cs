@@ -1,10 +1,9 @@
 ﻿using Listening.Domain.Entities;
-using Listening.Main.WebAPI.Controllers.Episodes.ViewModels;
 using Zack.DomainCommons.Models;
 
-namespace Listening.Main.WebAPI.Controllers.Albums.ViewModels;
+namespace Listening.Main.WebAPI.Controllers.Episodes.ViewModels;
 
-public record EpisodeVM(Guid Id, MultilingualString Name, Guid AlbumId, Uri AudioUrl, 
+public record EpisodeVM(Guid Id, MultilingualString Name, Guid AlbumId, Uri AudioUrl,
     double DurationInSecond, List<SentenceVM>? SubtitleSentences)
 {
     /// <summary>
@@ -46,7 +45,7 @@ public record EpisodeVM(Guid Id, MultilingualString Name, Guid AlbumId, Uri Audi
         List<EpisodeVM> vmList = new();
         foreach (Episode episode in episodes)
         {
-            EpisodeVM? vm = EpisodeVM.Create(episode, loadSubtitle);
+            EpisodeVM? vm = Create(episode, loadSubtitle);
             if (vm != null)
             {
                 vmList.Add(vm);

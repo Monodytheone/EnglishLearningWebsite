@@ -1,6 +1,6 @@
 ﻿using Listening.Domain;
 using Listening.Domain.Entities;
-using Listening.Main.WebAPI.Controllers.Albums.ViewModels;
+using Listening.Main.WebAPI.Controllers.Episodes.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.ComponentModel.DataAnnotations;
