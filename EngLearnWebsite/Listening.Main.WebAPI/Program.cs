@@ -28,11 +28,6 @@ builder.Services.AddDbContext<ListeningDbContext>(optionsBuilder =>
 // 注册Zack.AspNetCore中的内存缓存帮助类
 builder.Services.AddScoped<IMemoryCacheHelper, MemoryCacheHelper>();  
 
-// Filter
-builder.Services.Configure<MvcOptions>(mvcOptions =>
-{
-    mvcOptions.Filters.Add<UnitOfWorkFilter>();  // 启用工作单元Filter
-});
 
 var app = builder.Build();
 
