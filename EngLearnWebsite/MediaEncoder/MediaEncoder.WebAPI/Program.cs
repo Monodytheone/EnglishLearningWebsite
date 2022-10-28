@@ -1,5 +1,7 @@
-﻿using MediatR;
+﻿using MediaEncoder.Infrastructure;
+using MediatR;
 using Microsoft.Data.SqlClient;
+using Microsoft.EntityFrameworkCore;
 using Zack.Commons;
 using Zack.EventBus;
 
@@ -28,6 +30,13 @@ builder.Services.RunModuleInitializers(ReflectionHelper.GetAllReferencedAssembli
 
 // MediatR
 builder.Services.AddMediatR(ReflectionHelper.GetAllReferencedAssemblies().ToArray());
+
+// DbContext
+builder.Services.AddDbContext<MEDbContext>(optionsBuilder =>
+{
+    string connStr = builder.Configuration.GetConnectionString("EngLearnWebsite");
+    optionsBuilder.UseSqlServer(connStr);
+});
 
 
 var app = builder.Build();
