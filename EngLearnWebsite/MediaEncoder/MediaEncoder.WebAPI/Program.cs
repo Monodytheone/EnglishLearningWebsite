@@ -38,6 +38,9 @@ builder.Services.AddDbContext<MEDbContext>(optionsBuilder =>
     optionsBuilder.UseSqlServer(connStr);
 });
 
+// 配置项
+builder.Services.Configure<FileServerOptions>(builder.Configuration.GetSection("FileService:Endpoint"));
+
 
 var app = builder.Build();
 

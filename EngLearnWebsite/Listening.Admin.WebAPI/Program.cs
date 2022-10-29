@@ -4,13 +4,17 @@ using Listening.Admin.WebAPI.Controllers.Categories.Requests;
 using Listening.Admin.WebAPI.Hubs;
 using Listening.Infrastructure;
 using MediatR;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Primitives;
+using Microsoft.IdentityModel.Tokens;
 using StackExchange.Redis;
 using System.Reflection;
+using System.Text;
 using Zack.ASPNETCore;
 using Zack.Commons;
 using Zack.EventBus;
@@ -28,6 +32,7 @@ builder.Services.AddSwaggerGen();
 // 启用Zack.Commons提供的各项目自己进行自己提供的服务的注册
 builder.Services.RunModuleInitializers(ReflectionHelper.GetAllReferencedAssemblies());
 
+// MediatR
 builder.Services.AddMediatR(ReflectionHelper.GetAllReferencedAssemblies());  // 这个AddMediatR是Zack.Infrastructure包里的扩展方法（其实就是ToArray了一下）
 
 // Zack.AnyDbConfigProvider
@@ -37,9 +42,45 @@ builder.WebHost.ConfigureAppConfiguration((hostCtx, configBuilder) =>
     configBuilder.AddDbConfiguration(() => new SqlConnection(connStr), reloadOnChange: true, reloadInterval: TimeSpan.FromSeconds(2));
 });
 
-// JWT
+// JWT with SignalR身份认证
 JWTOptions jwtOptions = builder.Configuration.GetSection("JWT").Get<JWTOptions>();
-builder.Services.AddJWTAuthentication(jwtOptions);
+//builder.Services.AddJWTAuthentication(jwtOptions);
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme).AddJwtBearer(jwtBearerOpt =>
+{
+    JWTOptions jwtOptions = builder.Configuration.GetSection("JWT").Get<JWTOptions>();
+    byte[] keyBytes = Encoding.UTF8.GetBytes(jwtOptions.Key);
+    var secKey = new SymmetricSecurityKey(keyBytes);
+    jwtBearerOpt.TokenValidationParameters = new()
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtOptions.Issuer,
+        ValidAudience = jwtOptions.Audience,
+        IssuerSigningKey = secKey,
+    };
+
+    // SignalR身份认证：
+    jwtBearerOpt.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            // WebSocket不支持自定义报文头
+            // 所以需要把jwt通过url的QueryString传递
+            // 然后在服务端的OnMessageReceived中，把Query中的jwt读出来，赋给context.Token
+            // 这样后续中间件才能从context.Token中解析出Token
+            StringValues accessToken = context.Request.Query["access_token"];
+            PathString path = context.HttpContext.Request.Path;
+            if (string.IsNullOrEmpty(accessToken) == false
+                && path.StartsWithSegments("/Hubs/EpisodeEncodingStatusHub"))
+            {
+                context.Token = accessToken;
+            }
+            return Task.CompletedTask;
+        }
+    };
+});
 
 builder.Services.AddDbContext<ListeningDbContext>(optionsBuilder =>
 {
