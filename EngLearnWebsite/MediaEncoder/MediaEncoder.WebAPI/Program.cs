@@ -1,5 +1,6 @@
 ﻿using MediaEncoder.Infrastructure;
 using MediaEncoder.WebAPI.BackgroundServices;
+using MediaEncoder.WebAPI.Options;
 using MediatR;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Data.SqlClient;
@@ -43,20 +44,19 @@ builder.Services.AddDbContext<MEDbContext>(optionsBuilder =>
 });
 
 // 配置项
-builder.Services.Configure<FileServerOptions>(builder.Configuration.GetSection("FileService:Endpoint"));
+builder.Services.Configure<FileServiceOptions>(builder.Configuration.GetSection("FileService:Endpoint"));
+builder.Services.Configure<JWTOptions>(builder.Configuration.GetSection("JWT"));  // 本项目中调用了FileService.SDK，需要传JWTOptions过去以让其构建token: 
 
-// 托管服务
-builder.Services.AddHostedService<EncodingBackgroundService>();
+// Zack.JWT: 本项目中调用了FileService.SDK，需要传TokenService过去以让其构建token
+JWTOptions jwtOptions = builder.Configuration.GetSection("JWT").Get<JWTOptions>();
+builder.Services.AddJWTAuthentication(jwtOptions);
+
 
 // 日志
 builder.Services.AddLogging(logBuilder =>
 {
     logBuilder.AddConsole();
 });
-
-// 本项目中调用了FileService.SDK，需要传JWTOptions过去以让其构建token
-JWTOptions jwtOptions = builder.Configuration.GetSection("JWT").Get<JWTOptions>();
-builder.Services.AddJWTAuthentication(jwtOptions);
 
 // 托管服务调用FileService.SDK，要用到HttpClientFactory
 builder.Services.AddHttpClient();
@@ -69,6 +69,9 @@ builder.Services.Configure<ForwardedHeadersOptions>(options =>
 {
     options.ForwardedHeaders = ForwardedHeaders.All;
 });
+
+// 托管服务
+builder.Services.AddHostedService<EncodingBackgroundService>();
 
 
 var app = builder.Build();
