@@ -1,4 +1,4 @@
-﻿using FileService.SDK.NETCore;
+using FileService.SDK.NETCore;
 using MediaEncoder.Domain;
 using MediaEncoder.Domain.Entities;
 using MediaEncoder.Infrastructure;
@@ -210,24 +210,11 @@ public class EncodingBackgroundService : BackgroundService
 
     private Task<Uri> UploadFileAsync(FileInfo file, CancellationToken ct)
     {
-        //Uri urlRoot = new(_fileServiceOptions.Value.UrlRoot);
-        Uri urlRoot = new Uri("https://localhost:7114");
-
-
-
-        //FileServiceClient fileService = new(urlRoot, _httpClientFactory, _tokenService, _jwtOptions.Value);
-
-        // 既然你报空，那我直接给你一个，看你报不报
-        JWTOptions mytempJWTOptions = new JWTOptions()
-        {
-            Issuer = "my",
-            Audience = "my",
-            ExpireSeconds = 31536000,
-            Key = "sdfhihwijh32y78^(*&432y5hsdi79y09234y",
-        };
-        FileServiceClient fileService = new(urlRoot, _httpClientFactory, _tokenService, mytempJWTOptions);
+        Uri urlRoot = new(_fileServiceOptions.Value.UrlRoot);
+        FileServiceClient fileService = new(urlRoot, _httpClientFactory, _tokenService, _jwtOptions.Value);
         return fileService.UploadAsync(file, ct);
     }
+
     public override void Dispose()
     {
         _serviceScope.Dispose();
