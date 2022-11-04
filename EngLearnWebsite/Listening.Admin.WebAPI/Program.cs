@@ -12,6 +12,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Primitives;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
 using StackExchange.Redis;
 using System.Reflection;
 using System.Text;
@@ -111,7 +112,28 @@ builder.Services.AddScoped<EpisodeEncodeHelper>();
 
 // Zack.EventBus
 builder.Services.Configure<IntegrationEventRabbitMQOptions>(builder.Configuration.GetSection("RabbitMQ"));
-builder.Services.AddEventBus("Listening.Admin", ReflectionHelper.GetAllReferencedAssemblies());
+builder.Services.AddEventBus("Listening_Admin", ReflectionHelper.GetAllReferencedAssemblies());
+
+
+// 让Swagger中带上Authorization报文头
+builder.Services.AddSwaggerGen(opt =>
+{
+    OpenApiSecurityScheme scheme = new()
+    {
+        Description = "Authorization报文头. \r\n例如：Bearer ey234927349dhhsdid",
+        Reference = new OpenApiReference { Type = ReferenceType.SecurityScheme, Id = "Authorization" },
+        Scheme = "oauth2",
+        Name = "Authorization",
+        In = ParameterLocation.Header,
+        Type = SecuritySchemeType.ApiKey,
+    };
+    opt.AddSecurityDefinition("Authorization", scheme);
+    OpenApiSecurityRequirement requirement = new();
+    requirement[scheme] = new List<string>();
+    opt.AddSecurityRequirement(requirement);
+});
+
+
 
 builder.Services.AddSignalR();
 

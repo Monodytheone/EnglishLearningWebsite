@@ -1,9 +1,13 @@
 ﻿using MediaEncoder.Infrastructure;
+using MediaEncoder.WebAPI.BackgroundServices;
 using MediatR;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using StackExchange.Redis;
 using Zack.Commons;
 using Zack.EventBus;
+using Zack.JWT;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -41,6 +45,31 @@ builder.Services.AddDbContext<MEDbContext>(optionsBuilder =>
 // 配置项
 builder.Services.Configure<FileServerOptions>(builder.Configuration.GetSection("FileService:Endpoint"));
 
+// 托管服务
+builder.Services.AddHostedService<EncodingBackgroundService>();
+
+// 日志
+builder.Services.AddLogging(logBuilder =>
+{
+    logBuilder.AddConsole();
+});
+
+// 本项目中调用了FileService.SDK，需要传JWTOptions过去以让其构建token
+JWTOptions jwtOptions = builder.Configuration.GetSection("JWT").Get<JWTOptions>();
+builder.Services.AddJWTAuthentication(jwtOptions);
+
+// 托管服务调用FileService.SDK，要用到HttpClientFactory
+builder.Services.AddHttpClient();
+
+// Redis
+string redisConnStr = builder.Configuration.GetValue<string>("Redis:ConnStr");
+IConnectionMultiplexer redisConnMultiplexer = ConnectionMultiplexer.Connect(redisConnStr);
+builder.Services.AddSingleton(typeof(IConnectionMultiplexer), redisConnMultiplexer);
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.All;
+});
+
 
 var app = builder.Build();
 
@@ -53,6 +82,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -46,7 +46,9 @@ public class FileServiceClient
         using var fileContent = new StreamContent(file.OpenRead());
         content.Add(fileContent, "file", file.Name);
         HttpClient httpClient = _httpClienFactory.CreateClient();
-        Uri requestUrl = new($"{_serverRoot}/api/Uploader/Upload");
+        //Uri requestUrl = new($"{_serverRoot}/api/Uploader/Upload");
+        Uri requestUrl = new($"{_serverRoot}api/Uploader/Upload");
+
         httpClient.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", token);  // 添加Authorization请求头
         HttpResponseMessage responseMsg = await httpClient.PostAsync(requestUrl, content, stoppingToken);  // 发送Post请求，得到响应
         if (responseMsg.IsSuccessStatusCode == false)

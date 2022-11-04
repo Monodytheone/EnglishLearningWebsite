@@ -3,6 +3,9 @@ using Zack.DomainCommons.Models;
 
 namespace MediaEncoder.Domain.Entities;
 
+/// <summary>
+/// Id与对应的Episode相同
+/// </summary>
 public record EncodingItem : BaseEntity, IAggregateRoot, IHasCreationTime
 {
     public DateTime CreationTime { get; private set; }

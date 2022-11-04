@@ -1,6 +1,7 @@
 ﻿using Listening.Admin.WebAPI.Hubs;
 using Listening.Domain;
 using Listening.Domain.Entities;
+using Listening.Domain.Entities.ValueObjects;
 using Listening.Infrastructure;
 using Microsoft.AspNetCore.SignalR;
 using Zack.EventBus;
@@ -38,7 +39,7 @@ public class EpisodeEncodingStatusChangeIntegrationHandler : DynamicIntegrationE
             return;
         }
 
-        Guid episodeId = Guid.Parse(eventData.Id);
+        Guid episodeId = Guid.Parse(eventData.EncodingItemId);
         switch (eventName)
         {
             case "MediaEncoding.Started":
@@ -55,22 +56,45 @@ public class EpisodeEncodingStatusChangeIntegrationHandler : DynamicIntegrationE
                 await _hubContext.Clients.All.SendAsync("OnMediaEncodingCompleted", episodeId);
                 break;
             case "MediaEncoding.Completed":
+                Console.WriteLine("听力服务收到转码完成消息");
+                Console.WriteLine(eventData);
+
                 // 转码完成，则从Redis中把暂存的Episode信息取出来，然后正式地插入Episode表中
-                await _episodeEncodeHelper.UpdateEpisodeEncodingStatusAsync(episodeId, EncodeStatus.Completed);
-                Uri outputUrl = new Uri(eventData.OutputUrl);
-                EncodingEpisodeInfo encodeItem = await _episodeEncodeHelper.GetEncodingEpisodeAsync(episodeId);
 
-                Guid albumId = encodeItem.AlbumId;
-                int sequence = await _repository.GetMaxSeqOfEpisodeAsync(albumId) + 1;
-                Episode episode = new Episode.Builder()
-                    .Id(episodeId).SequenceNumber(sequence).Name(encodeItem.Name).AlbumId(albumId)
-                    .AudioUrl(outputUrl).DurationInSecond(encodeItem.DurationInSecond)
-                    .Subtitle(encodeItem.Subtitle)
-                    .Build();
-                _dbContext.Episodes.Add(episode);
-                await _dbContext.SaveChangesAsync();
+                try
+                {
+                    await _episodeEncodeHelper.UpdateEpisodeEncodingStatusAsync(episodeId, EncodeStatus.Completed);
+                    Uri outputUrl = new Uri(eventData.OutputUrl);
+                    EncodingEpisodeInfo encodeItem = await _episodeEncodeHelper.GetEncodingEpisodeAsync(episodeId);
 
-                await _hubContext.Clients.All.SendAsync("OnMediaEncodingCompleted", episodeId);  // 通知前端刷新
+                    Guid albumId = encodeItem.AlbumId;
+                    int sequence = await _repository.GetMaxSeqOfEpisodeAsync(albumId) + 1;
+
+                    // 妥协：随便搞个Content不为空的Subtitle插进数据库先
+                    Subtitle subtitle = null;
+                    if (encodeItem.Subtitle.Content != null)
+                    {
+                        subtitle = encodeItem.Subtitle;
+                    }
+                    else
+                    {
+                        subtitle = new("[{\"StartTime\":\"00:00:00\",\"EndTime\":\"00:00:01\",\"Value\":\"字幕处理失败了哦\"}]", SubtitleType.Json);
+                    }
+
+                    Episode episode = new Episode.Builder()
+                        .Id(episodeId).SequenceNumber(sequence).Name(encodeItem.Name).AlbumId(albumId)
+                        .AudioUrl(outputUrl).DurationInSecond(encodeItem.DurationInSecond)
+                        .Subtitle(subtitle)
+                        .Build();
+                    _dbContext.Episodes.Add(episode);
+                    await _dbContext.SaveChangesAsync();
+
+                    await _hubContext.Clients.All.SendAsync("OnMediaEncodingCompleted", episodeId);  // 通知前端刷新
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex);
+                }
                 break;
             default:
                 throw new ArgumentOutOfRangeException(nameof(eventName));
