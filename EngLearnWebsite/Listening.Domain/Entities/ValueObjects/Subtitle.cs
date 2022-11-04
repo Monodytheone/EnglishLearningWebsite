@@ -25,7 +25,7 @@ namespace Listening.Domain.Entities.ValueObjects
 
         public SubtitleType Format { get; private set; }
 
-        private Subtitle() { }
+        public Subtitle() { }  // 这个不改成public的，有个地方读不到（具体哪里我忘了。。。）
 
         public Subtitle(string content, SubtitleType type)
         {

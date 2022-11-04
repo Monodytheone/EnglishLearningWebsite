@@ -21,6 +21,11 @@ public class EpisodeEncodeHelper
         string redisKeyForEpisode = GetRedisKeyForEpisode(episode.Id);
         var db = _redisConn.GetDatabase();
         await db.StringSetAsync(redisKeyForEpisode, episode.ToJsonString());  // 保存转码任务详细信息到Redis
+        // 这里有问题的，Subtitle.Content是Json形式时，意识episode.ToJsonString()看起来没问题，但存到redis中的那一项却会是null
+        // 啊，不止json，srt也一样是null的，而且字幕类型对应的枚举也存成0了
+        // 我决定暂时放弃处理这点，先让创建出的Episode的Subtitle.Content允许为null了
+
+        Console.WriteLine($"{episode}\n{episode.ToJsonString()}");
 
         string keyOfAlbum = GetRedisKeyOfAlbum(episode.AlbumId);
         await db.StringSetAsync(keyOfAlbum, episode.Id.ToString());  // 将EpisodeId添加到<album下所有的待转码episodeId>中
@@ -53,7 +58,14 @@ public class EpisodeEncodeHelper
     {
         string episodeKey = EpisodeEncodeHelper.GetRedisKeyForEpisode(episodeId);
         var db = _redisConn.GetDatabase();
-        string originalJson = await db.StringGetAsync(episodeKey);
+        string? originalJson = await db.StringGetAsync(episodeKey);
+
+        if (originalJson == null)
+        {
+            Console.WriteLine("可能收到了之前运行中发出的集成事件");
+            return;
+        }
+
         EncodingEpisodeInfo encodingEpisodeInfo = originalJson.ParseJson<EncodingEpisodeInfo>()!;
         encodingEpisodeInfo = encodingEpisodeInfo with { Status = status };
         await db.StringSetAsync(episodeKey, encodingEpisodeInfo.ToJsonString());
