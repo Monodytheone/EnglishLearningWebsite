@@ -33,11 +33,19 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Listening.Main.WebAPI", "Li
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MediaEncoder", "MediaEncoder", "{AD20DA34-D3CB-495A-9D5D-24BE0E09BA26}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaEncoder.Domain", "MediaEncoder\MediaEncoder.Domain\MediaEncoder.Domain.csproj", "{7AB4F5C1-88B5-40A6-8117-B34248A01282}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaEncoder.Domain", "MediaEncoder\MediaEncoder.Domain\MediaEncoder.Domain.csproj", "{7AB4F5C1-88B5-40A6-8117-B34248A01282}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaEncoder.Infrastructure", "MediaEncoder\MediaEncoder.Infrastructure\MediaEncoder.Infrastructure.csproj", "{456A4991-BB97-4550-8347-479E4FA80ED1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaEncoder.Infrastructure", "MediaEncoder\MediaEncoder.Infrastructure\MediaEncoder.Infrastructure.csproj", "{456A4991-BB97-4550-8347-479E4FA80ED1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaEncoder.WebAPI", "MediaEncoder\MediaEncoder.WebAPI\MediaEncoder.WebAPI.csproj", "{832BB308-63AF-47EA-ABFD-0CE312602BE9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaEncoder.WebAPI", "MediaEncoder\MediaEncoder.WebAPI\MediaEncoder.WebAPI.csproj", "{832BB308-63AF-47EA-ABFD-0CE312602BE9}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SearchService", "SearchService", "{A94126D0-F252-49E9-95E0-8292101C7D23}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SearchService.Domain", "SearchService\SearchService.Domain\SearchService.Domain.csproj", "{4B1A6E04-7E9D-40BF-A61D-BAF0122CB523}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SearchService.Infrastructure", "SearchService\SearchService.Infrastructure\SearchService.Infrastructure.csproj", "{86B82A67-CA88-48F5-965D-F41FAA441607}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SearchService.WebAPI", "SearchService\SearchService.WebAPI\SearchService.WebAPI.csproj", "{AD36CBF2-65CD-404D-B7E3-35DC77B19021}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -101,6 +109,18 @@ Global
 		{832BB308-63AF-47EA-ABFD-0CE312602BE9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{832BB308-63AF-47EA-ABFD-0CE312602BE9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{832BB308-63AF-47EA-ABFD-0CE312602BE9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B1A6E04-7E9D-40BF-A61D-BAF0122CB523}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B1A6E04-7E9D-40BF-A61D-BAF0122CB523}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B1A6E04-7E9D-40BF-A61D-BAF0122CB523}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B1A6E04-7E9D-40BF-A61D-BAF0122CB523}.Release|Any CPU.Build.0 = Release|Any CPU
+		{86B82A67-CA88-48F5-965D-F41FAA441607}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{86B82A67-CA88-48F5-965D-F41FAA441607}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{86B82A67-CA88-48F5-965D-F41FAA441607}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{86B82A67-CA88-48F5-965D-F41FAA441607}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AD36CBF2-65CD-404D-B7E3-35DC77B19021}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AD36CBF2-65CD-404D-B7E3-35DC77B19021}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AD36CBF2-65CD-404D-B7E3-35DC77B19021}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AD36CBF2-65CD-404D-B7E3-35DC77B19021}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -120,6 +140,9 @@ Global
 		{7AB4F5C1-88B5-40A6-8117-B34248A01282} = {AD20DA34-D3CB-495A-9D5D-24BE0E09BA26}
 		{456A4991-BB97-4550-8347-479E4FA80ED1} = {AD20DA34-D3CB-495A-9D5D-24BE0E09BA26}
 		{832BB308-63AF-47EA-ABFD-0CE312602BE9} = {AD20DA34-D3CB-495A-9D5D-24BE0E09BA26}
+		{4B1A6E04-7E9D-40BF-A61D-BAF0122CB523} = {A94126D0-F252-49E9-95E0-8292101C7D23}
+		{86B82A67-CA88-48F5-965D-F41FAA441607} = {A94126D0-F252-49E9-95E0-8292101C7D23}
+		{AD36CBF2-65CD-404D-B7E3-35DC77B19021} = {A94126D0-F252-49E9-95E0-8292101C7D23}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BC89C0CE-F151-41A1-9C75-0A31A05C6AB8}
